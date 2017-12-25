@@ -3,6 +3,7 @@ using Plugin.FilePicker;
 using Prism.Commands;
 using Prism.Navigation;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,14 @@ namespace JManReader.ViewModels
             : base(navigationService)
         {
             Title = "Main Page1";
+        }
+
+        private ObservableCollection<Chapter> _chapters = new ObservableCollection<Chapter>{new Chapter{ChapterText = "Text,Text"}};
+
+        public ObservableCollection<Chapter> Chapters
+        {
+            get { return _chapters; }
+            set { SetProperty(ref _chapters, value); }
         }
 
         public Dictionary<string, string> ContentMetaData { get; set; } = new Dictionary<string, string>();
@@ -122,14 +131,19 @@ namespace JManReader.ViewModels
                                             st.CopyTo(ms);
                                             ms.Seek(0, SeekOrigin.Begin);
                                             //Debug.WriteLine(System.Net.WebUtility.HtmlDecode(Encoding.UTF8.GetString(ms.ToArray())));
-                                            Debug.WriteLine(HttpUtility.HtmlDecode(Regex.Replace(Encoding.UTF8.GetString(ms.ToArray()),"<(.|\n)*?>", "")));
-                                            //var h = (html) serhtml.Deserialize(ms);
-                                            //foreach (var v in h.body.div.p)
-                                            //{
-                                            //    Debug.WriteLine(v.Text.ToString());
-                                            //}
+                                            var text = HttpUtility.HtmlDecode(Regex.Replace(Encoding.UTF8.GetString(ms.ToArray()), "<(.|\n)*?>", ""));
+
+                                            var chapterText = text.Split('\n'); 
+                                            Debug.WriteLine(text);
 
 
+                                            var list = new ObservableCollection<Chapter>();
+                                            foreach (var s in chapterText)
+                                            {
+                                                list.Add(new Chapter{ ChapterText = s.Trim()});
+                                            }
+
+                                            Chapters = list;
                                         }
                                     }
                                 }
