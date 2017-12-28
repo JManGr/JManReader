@@ -153,7 +153,7 @@ namespace JManReader.Model
 
         private string eventField;
 
-        private System.DateTime valueField;
+        private string valueField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified, Namespace = "http://www.idpf.org/2007/opf")]
@@ -164,8 +164,8 @@ namespace JManReader.Model
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlTextAttribute(DataType = "date")]
-        public System.DateTime Value
+        [System.Xml.Serialization.XmlTextAttribute()]
+        public string Value
         {
             get => this.valueField;
             set => this.valueField = value;

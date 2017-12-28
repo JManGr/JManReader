@@ -17,6 +17,7 @@ using System.Xml.Serialization;
 using JManReader.Helpers;
 using JManReader.Model;
 using PCLStorage;
+using Prism.Services;
 using SpeakIt;
 using Xamarin.Forms;
 using FileAccess = PCLStorage.FileAccess;
@@ -25,32 +26,30 @@ namespace JManReader.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        public Dictionary<string, string> ContentMetaData { get; set; } = new Dictionary<string, string>();
+        private package _content;
+        private ncx _tableOfContents;
+        private container _container;
+       
+        private IFolder _epupTmp;
         internal enum ReadState { None=0,Reading=1}
 
         private readonly int _storedChapterDescriptions;
         private readonly int _storedParagraph;
-        private List<ChapterDescription> _chapterDescriptions = new List<ChapterDescription>();
-        private ReadState _readState = ReadState.None;
+       
+       
 
-        internal ReadState CurReadState
-        {
-            get => _readState;
-            set => SetProperty(ref _readState, value);
-        }
-        private List<ChapterDescription> ChapterDescriptions
-        {
-            get { return _chapterDescriptions; }
-            set {
-                SetProperty(ref _chapterDescriptions, value);
-                CurChapterDescriptions = 0;
-            }
-        }
-        public MainPageViewModel(INavigationService navigationService, ISpeakThis tts)
+        private ISpeakThis _tts;
+        private IDeviceService _deviceService;
+
+       
+        public MainPageViewModel(INavigationService navigationService, ISpeakThis tts, IDeviceService deviceService)
             : base(navigationService)
         {
             _storedChapterDescriptions = Settings.CurStoreChapterDescriptions;
             _storedParagraph = Settings.CurStoredParagraph;
             _tts = tts;
+            _deviceService = deviceService;
             _tts.InitSpeech();
             if (_storedChapterDescriptions >= 0 && _storedParagraph >= 0)
             {
@@ -59,47 +58,69 @@ namespace JManReader.ViewModels
             Title = "Main Page1";
         }
 
-        async void ReadLastRead()
-        {
-            if (await FileSystem.Current.LocalStorage.CheckExistsAsync("EPubTmp")==ExistenceCheckResult.FolderExists)
-            {
-                _epupTmp = await FileSystem.Current.LocalStorage.GetFolderAsync("EPubTmp");
-                if (_epupTmp != null)
-                {
-                    await LoadEpubFile();
-                    _curChapterDescriptions = _storedChapterDescriptions;
-                    
-                    await ReadChapter(ChapterDescriptions[CurChapterDescriptions].Filename);
-                    _curParagraph = Paragraphs.Count<=_storedParagraph? Paragraphs.Count-1 : _storedParagraph; ;
-                    SelParagraph = Paragraphs[CurParagraph];
-                    DoRead();
-                }
-            }
-        }
+         void ReadLastRead()
+         {
+             Task.Run(async () =>
+             {
+                 if (await FileSystem.Current.LocalStorage.CheckExistsAsync("EPubTmp") == ExistenceCheckResult.FolderExists)
+                 {
+                     _epupTmp = await FileSystem.Current.LocalStorage.GetFolderAsync("EPubTmp");
+                     if (_epupTmp != null)
+                     {
+                         await LoadEpubFile();
+                         CurChapterDescriptions = _storedChapterDescriptions;
+
+                         await ReadChapter(ChapterDescriptions[CurChapterDescriptions].Filename);
+                         await Task.Delay(100);
+                         CurParagraph = Paragraphs.Count <= _storedParagraph ? Paragraphs.Count - 1 : _storedParagraph;
+                         ;
+                         SelParagraph = Paragraphs[CurParagraph];
+                         DoRead();
+                     }
+                 }
+             });
+         }
 
         private void TtsOnSpeakCompleded()
         {
             if(CurReadState == ReadState.Reading && HasNextParagraph)
             {
-                SelParagraph = Paragraphs[++CurParagraph];
-                _tts.Speak(SelParagraph.ParagraphText);
+
+                _tts.Speak(Paragraphs[++CurParagraph].ParagraphText);
+                SelParagraph = Paragraphs[CurParagraph];
             }
         }
 
         private ObservableCollection<Paragraph> _paragraphrs = new ObservableCollection<Paragraph> { new Paragraph { ParagraphText = "Text,Text" } };
-
         public ObservableCollection<Paragraph> Paragraphs
         {
             get { return _paragraphrs; }
             set
             {
-                SetProperty(ref _paragraphrs, value);
+                _deviceService.BeginInvokeOnMainThread(() => SetProperty(ref _paragraphrs, value));
                 CurParagraph = -1;
             }
         }
 
-        private int _curParagraph;
+        private ReadState _readState = ReadState.None;
+        internal ReadState CurReadState
+        {
+            get => _readState;
+            set => SetProperty(ref _readState, value);
+        }
 
+        private List<ChapterDescription> _chapterDescriptions = new List<ChapterDescription>();
+        private List<ChapterDescription> ChapterDescriptions
+        {
+            get { return _chapterDescriptions; }
+            set
+            {
+                SetProperty(ref _chapterDescriptions, value);
+                CurChapterDescriptions = 0;
+            }
+        }
+
+        private int _curParagraph;
         public int CurParagraph
         {
             get => _curParagraph;
@@ -112,34 +133,41 @@ namespace JManReader.ViewModels
 
 
         private Paragraph _selParagraph;
-
         public Paragraph SelParagraph
         {
             get => _selParagraph;
             set
             {
-                if (_selParagraph != null)
+                _deviceService.BeginInvokeOnMainThread(() =>
                 {
-                    _selParagraph.IsSelected = false;
-                }
-                SetProperty(ref _selParagraph, value);
-                if (_selParagraph != null)
-                {
-                    _selParagraph.IsSelected = true;
-                }
+                    if (_selParagraph != null)
+                    {
+                        _selParagraph.IsSelected = false;
+                    }
+
+                    SetProperty(ref _selParagraph, value);
+                    if (_selParagraph != null)
+                    {
+                        _selParagraph.IsSelected = true;
+                    }
+                });
             }
+        }
+
+        private bool _isLoaded;
+
+        public bool IsLoaded
+        {
+            get => _isLoaded;
+            set => SetProperty(ref _isLoaded, value);
         }
 
         public bool HasNextParagraph => CurParagraph + 1 < Paragraphs.Count;
 
-        public Dictionary<string, string> ContentMetaData { get; set; } = new Dictionary<string, string>();
-        private package _content;
-        private ncx _tableOfContents;
-        private container _container;
-        DelegateCommand _cmdOpen;
-        private IFolder _epupTmp;
+        
+       
+        
         private int _curChapterDescriptions = -1;
-        private ISpeakThis _tts;
         public int CurChapterDescriptions
         {
             get => _curChapterDescriptions;
@@ -213,25 +241,25 @@ namespace JManReader.ViewModels
 
         public DelegateCommand CmdRead
         {
-            get => _cmdRead ?? (_cmdRead = new DelegateCommand(DoRead,() => CurReadState==ReadState.None)).ObservesProperty(() => CurReadState);
+            get => _cmdRead ?? (_cmdRead = new DelegateCommand(DoRead,() => IsLoaded&&CurReadState==ReadState.None)).ObservesProperty(() => CurReadState).ObservesProperty(()=>IsLoaded);
         }
 
         private void DoRead()
         {
             if (HasNextParagraph)
             {
-                
-                _tts.SpeakCompleded += TtsOnSpeakCompleded;
-                SelParagraph = Paragraphs[++CurParagraph];
-                CurReadState = ReadState.Reading;
-                _tts.Speak(SelParagraph.ParagraphText);
-
+                _deviceService.BeginInvokeOnMainThread(() =>
+                {
+                    _tts.SpeakCompleded += TtsOnSpeakCompleded;
+                    
+                    CurReadState = ReadState.Reading;
+                    _tts.Speak(Paragraphs[++CurParagraph].ParagraphText);
+                    SelParagraph = Paragraphs[CurParagraph];
+                });
             }
         }
 
         private DelegateCommand _cmdStop;
-        
-
         public DelegateCommand CmdStop
         {
             get
@@ -242,16 +270,21 @@ namespace JManReader.ViewModels
 
         private void DoStopRead()
         {
-            CurReadState = ReadState.None;
-            _tts.Stop();
-            _tts.SpeakCompleded -= TtsOnSpeakCompleded;
+            _deviceService.BeginInvokeOnMainThread(() =>
+            {
+                CurReadState = ReadState.None;
+                _tts.Stop();
+                _tts.SpeakCompleded -= TtsOnSpeakCompleded;
+                CurParagraph--;
+            });
         }
 
+        DelegateCommand _cmdOpen;
         public DelegateCommand CmdOpen
         {
             get
             {
-                return new DelegateCommand(async () =>
+                return _cmdOpen?? (_cmdOpen=new DelegateCommand(async () =>
                 {
                     
                     try
@@ -266,14 +299,14 @@ namespace JManReader.ViewModels
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
-                        throw;
                     }
-                });
+                }));
             }
         }
 
         private async Task LoadEpubFile()
         {
+            IsLoaded = false;
             var cf = PortablePath.Combine(new string[] { _epupTmp.Path, "META-INF", "container.xml" });
            
 
@@ -323,6 +356,7 @@ namespace JManReader.ViewModels
                     ChapterDescriptions = chd;
                     //CurChapterDescriptions = 0;
                     await ReadChapter(ChapterDescriptions.FirstOrDefault(p => !string.IsNullOrEmpty(p.Title)).Filename);
+                    IsLoaded = true;
                 }
             }
         }
@@ -429,7 +463,7 @@ namespace JManReader.ViewModels
                         value = tg.Value;
                         break;
                     case date tg:
-                        value = tg.Value.ToLongDateString();
+                        value = tg.Value;
                         break;
                     case identifier tg:
                         value = tg.Value;
