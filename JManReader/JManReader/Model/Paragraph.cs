@@ -4,16 +4,16 @@ using System.Runtime.CompilerServices;
 
 namespace JManReader.ViewModels
 {
-    public class Chapter: INotifyPropertyChanged
+    public class Paragraph: INotifyPropertyChanged
     {
         #region Properties
 
-        private string _chapterText;
+        private string _paragraphText;
 
-        public string ChapterText
+        public string ParagraphText
         {
-            get => _chapterText;
-            set => SetProperty(ref _chapterText, value);
+            get => _paragraphText;
+            set => SetProperty(ref _paragraphText, value);
         }
 
         private double _fontSize =14;

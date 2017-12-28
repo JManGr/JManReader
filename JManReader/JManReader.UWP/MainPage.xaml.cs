@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Microsoft.Practices.Unity;
 using Prism.Unity;
+using SpeakIt;
 
 namespace JManReader.UWP
 {
@@ -31,7 +32,8 @@ namespace JManReader.UWP
     {
         public void RegisterTypes(IUnityContainer container)
         {
-
+            var tts= new SpeakIt.UWP.SpeakThis();
+            container.RegisterInstance(typeof(ISpeakThis), tts);
         }
     }
 }
