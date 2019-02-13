@@ -1,7 +1,9 @@
 ﻿using Foundation;
 using UIKit;
-using Microsoft.Practices.Unity;
+using Unity;
 using Prism.Unity;
+using SpeakIt;
+using Prism.Ioc;
 
 namespace JManReader.iOS
 {
@@ -27,11 +29,15 @@ namespace JManReader.iOS
         }
     }
 
-    public class iOSInitializer : IPlatformInitializer
+    public class iOSInitializer : Prism.IPlatformInitializer
     {
-        public void RegisterTypes(IUnityContainer container)
+        
+        public void RegisterTypes(IContainerRegistry container)
         {
-            
+            var tts = new SpeakThis();
+            container.RegisterInstance(typeof(ISpeakThis), tts);
         }
+
+
     }
 }

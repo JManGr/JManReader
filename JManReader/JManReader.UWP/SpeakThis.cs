@@ -46,7 +46,7 @@ namespace SpeakIt.UWP
                 Debug.WriteLine(v.DisplayName);
             }
 
-            tts.Voice = SpeechSynthesizer.AllVoices.FirstOrDefault((p) => p.DisplayName.Contains("Stef")) ?? SpeechSynthesizer.DefaultVoice;
+            tts.Voice = SpeechSynthesizer.AllVoices.FirstOrDefault((p) => p.DisplayName.Contains("Katja")) ?? SpeechSynthesizer.DefaultVoice;
             //_mediaElement.MediaEnded -= _mediaElement_MediaEnded;
             //_mediaElement.MediaEnded += _mediaElement_MediaEnded;
             //_mediaElement.DefaultPlaybackRate *= 1.4;

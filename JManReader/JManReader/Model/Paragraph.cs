@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Xamarin.Forms;
 
 namespace JManReader.ViewModels
 {
@@ -31,9 +32,9 @@ namespace JManReader.ViewModels
             get => _isSelected;
             set
             {
-                if (_isSelected != value)
+                if (_isSelected != value && Device.RuntimePlatform!= Device.iOS)
                 {
-                    FontSize = value ? 22 : 14;
+                    FontSize = value ? 16 : 14;
                 }
                 SetProperty(ref _isSelected, value);
 

@@ -1,9 +1,11 @@
 ﻿using JManReader.ViewModels;
 using JManReader.Views;
-using Microsoft.Practices.Unity;
+using Unity;
 using Prism.Unity;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using Prism;
+using Prism.Ioc;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace JManReader
@@ -17,7 +19,9 @@ namespace JManReader
          */
         public App() : this(null) { }
 
-        public App(IPlatformInitializer initializer) : base(initializer) { }
+        public App(IPlatformInitializer initializer = null) : base(initializer)
+        {
+        }
 
         protected override async void OnInitialized()
         {
@@ -26,11 +30,14 @@ namespace JManReader
             await NavigationService.NavigateAsync("NavigationPage/MainPage");
         }
 
-        protected override void RegisterTypes()
-        {
-            Container.RegisterTypeForNavigation<NavigationPage>();
-            Container.RegisterTypeForNavigation<MainPage>();
-            Container.RegisterTypeForNavigation<Option>();
-        }
-    }
+
+		protected override void RegisterTypes(IContainerRegistry containerRegistry)
+		{
+            containerRegistry.RegisterForNavigation<NavigationPage>();
+            containerRegistry.RegisterForNavigation<MainPage>();
+            containerRegistry.RegisterForNavigation<Option>();
+		    containerRegistry.RegisterForNavigation<SelectBookFromPc>();
+
+		}
+	}
 }

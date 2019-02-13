@@ -15,7 +15,10 @@
     </ContentPage.Resources>
     
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Open" Command="{Binding CmdOpen}"/>
+        <ToolbarItem Text="Open" Command="{Binding CmdOpen}" Priority="0" Order="Secondary" />
+        <ToolbarItem Text="Connect Pc" Command="{Binding CmdConPc}" Priority="0" Order="Secondary"/>
+        <ToolbarItem Text="Open Folder" Command="{Binding CmdOpenFromFolder}" Priority="0" Order="Secondary" />
+        
     </ContentPage.ToolbarItems>
     
     
@@ -27,18 +30,21 @@
         </Grid.RowDefinitions>
         <StackLayout Grid.Row="0" Orientation="Horizontal">
             <!--<Button Text="0pen" Command="{Binding CmdOpen}"/>-->
-            <Button Text="&lt;--" Command="{Binding CmdBack}"/>
-            <Button Text="-->" Command="{Binding CmdForward}"/>
-            <Button Text="Read" Command="{Binding CmdRead}"/>
-            <Button Text="Stop" Command="{Binding CmdStop}"/>
+            <Button Text="&lt;--" Command="{Binding CmdBack}" WidthRequest="70" Margin="5"/>
+            <Button Text="-->" Command="{Binding CmdForward}" WidthRequest="70" Margin="5"/>
+            <Button Text="Read" Command="{Binding CmdRead}" WidthRequest="70" Margin="5"/>
+            <Button Text="Stop" Command="{Binding CmdStop}" WidthRequest="70" Margin="5"/>
         </StackLayout>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Paragraphs}" HasUnevenRows="True" CachingStrategy="RecycleElement" Margin="10" SelectedItem="{Binding SelParagraph,Mode=TwoWay}" ItemSelected="ListView_OnItemSelected">
+        <ListView Grid.Row="1" ItemsSource="{Binding Paragraphs}" HasUnevenRows="True" 
+                  CachingStrategy="RecycleElementAndDataTemplate"  Margin="10,0,10,0" SelectedItem="{Binding SelParagraph,Mode=TwoWay}" 
+                  SeparatorVisibility="None"
+                  ItemSelected="ListView_OnItemSelected">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
+                    <ViewCell >
                         <!--<WebView Source="{Binding ParagraphText, Converter={StaticResource HtmlSourceConverter}}" VerticalOptions="FillAndExpand" MinimumHeightRequest="50"></WebView>-->
-                        <Label Text="{Binding ParagraphText}" VerticalOptions="CenterAndExpand" FontSize="{Binding FontSize}"></Label>
+                        <Label Text="{Binding ParagraphText}" FontSize="{Binding FontSize}"></Label>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>

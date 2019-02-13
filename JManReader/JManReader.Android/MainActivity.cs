@@ -1,7 +1,9 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Microsoft.Practices.Unity;
+using Prism;
+using Prism.Ioc;
+using Unity;
 using Prism.Unity;
 using SpeakIt;
 
@@ -27,8 +29,13 @@ namespace JManReader.Droid
         public void RegisterTypes(IUnityContainer container)
         {
             // Register any platform specific implementations
+            
+        }
+
+        public void RegisterTypes(IContainerRegistry containerRegistry)
+        {
             var tts = new SpeakIt.Droid.SpeakThis();
-            container.RegisterInstance(typeof(ISpeakThis), tts);
+            containerRegistry.RegisterInstance(typeof(ISpeakThis), tts);
         }
     }
 }

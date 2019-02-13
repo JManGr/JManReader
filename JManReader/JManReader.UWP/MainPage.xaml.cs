@@ -12,7 +12,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.Practices.Unity;
+using Prism;
+using Prism.Ioc;
+using Unity;
 using Prism.Unity;
 using SpeakIt;
 
@@ -30,10 +32,11 @@ namespace JManReader.UWP
 
     public class UwpInitializer : IPlatformInitializer
     {
-        public void RegisterTypes(IUnityContainer container)
+       
+        public void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            var tts= new SpeakIt.UWP.SpeakThis();
-            container.RegisterInstance(typeof(ISpeakThis), tts);
+            var tts = new SpeakIt.UWP.SpeakThis();
+            containerRegistry.RegisterInstance(typeof(ISpeakThis), tts);
         }
     }
 }

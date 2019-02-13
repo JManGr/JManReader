@@ -5,11 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="PCLStorage" Version="1.0.2" />
+    <PackageReference Include="Plugin.Sensors" Version="2.4.0" />
     <PackageReference Include="Xam.Plugins.Settings" Version="3.1.1" />
-    <PackageReference Include="Xamarin.Forms" Version="2.5.0.121934" />
-    <PackageReference Include="Prism.Unity.Forms" Version="7.0.0.168-pre" />
-    <PackageReference Include="Xamarin.Plugin.FilePicker" Version="1.2.1" />
+    <PackageReference Include="Xamarin.Plugin.FilePicker" Version="2.0.64-beta" />
+    <PackageReference Include="Xamarin.Forms" Version="2.5.1.444934" />
+    <PackageReference Include="Prism.Unity.Forms" Version="7.0.0.396" />
+    <PackageReference Include="Unity" Version="5.7.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DeviceMotion.Plugin">
+      <HintPath>..\..\..\..\..\.nuget\packages\xam.plugin.devicemotion\1.1.2\lib\Xamarin.iOS10\DeviceMotion.Plugin.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.Sensors">
+      <HintPath>..\..\..\..\..\.nuget\packages\plugin.sensors\2.4.0\lib\xamarinios10\Plugin.Sensors.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

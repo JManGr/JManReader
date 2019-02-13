@@ -37,7 +37,7 @@ namespace JManReader.Helpers
             set => AppSettings.AddOrUpdateValue(CurReadFileKey, value);
         }
 
-
+       
         public static int CurStoreChapterDescriptions
         {
             get => AppSettings.GetValueOrDefault(CurChapterDescriptionsKey, CurChapterDescriptionsKeyDefault);
